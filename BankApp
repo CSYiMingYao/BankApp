@@ -1,0 +1,126 @@
+//YiMing Yao
+//CIS254 Assignmeng12 Problem1
+//This problem will re-do the bank app programming from pervious assignment
+package assignment12;
+import java.security.SecureRandom;
+import java.util.Scanner;
+import java.util.Set;
+
+import javax.print.DocFlavor.INPUT_STREAM;
+import javax.swing.Box;
+import javax.xml.crypto.Data;
+public class BankApp 
+{
+	static Scanner input=new Scanner(System.in);
+	static SecureRandom rand = new SecureRandom();
+	static int account_number[]= {1001,1002,1003,1004,1005};//declare the account number
+	static double balance;//declare the initial balance
+	static String name[]= {"YiMing Yao","Jessie Hung","HanQing Bian","XiaoPang","Winnie Zhen"};//declare the username
+	public static Account[] PrintRandomAccount()//this method is to get verification passwords for user and print
+	{
+		Account[] bank=new Account[5];//declare the array for object
+		int PIN[]= new int[5];//declare the array of PINs 
+		System.out.println("The random account numbers and PINs are as follow: ");
+		for(int index=0;index<5;index++)
+		{
+			PIN[index]=1000+rand.nextInt(999);//random number
+			bank[index] =new Account(name[index],account_number[index],PIN[index], balance);//constructor method
+			System.out.println(" The verification code for " + bank[index].getAccount_number()+ " is "+bank[index].getPIN());
+			System.out.println();	
+		}
+		return bank;
+	}//end method 
+	public static int findAccount(Account[] data,int account_number)//this method will find account
+	{
+		for(int i=0;i<5;i++)
+		{
+			if(data[i].getAccount_number()== account_number)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}//end method
+	public static int validateAccount(Account[] data, int PIN,int postion)//this method will validate the account
+	{
+		if(data[postion].getPIN()!=PIN)
+		{
+			return -1;
+		}
+		return 0;
+	}//end method
+	public static void processAccount(Account[]data,int position)//process account
+	{
+		String option;
+		double money;
+		System.out.println("Welcome "+ data[position].getName());
+		do
+		{
+		System.out.print("D(eposit) / W(ithdraw) / Q(uit): ");
+		option=input.nextLine();
+		option=option.toUpperCase();
+		switch (option) 
+		{
+		case "D":
+			System.out.print("Enter deposit amount: ");
+			money=Double.parseDouble(input.nextLine());
+			if(money>0)//valid data
+			{
+				data[position].deposit(money);
+				System.out.printf("balance $%.2f%n",data[position].getBalance());
+			}
+			break;
+		case "W":
+			System.out.print("Enter withdraw amount: ");
+			money=Double.parseDouble(input.nextLine());
+			if(data[position].getBalance()< money || money<0)//deal with invalid data
+			{
+				System.out.println("Insufficent funds");
+			}
+			else 
+			{
+				data[position].withdraw(money);
+				System.out.printf("balance $%.2f%n",data[position].getBalance());
+			}
+		}//end switch
+		}while(!option.equals("Q"));
+	}//end method
+	public static void main(String[] args) 
+	{
+		Account[]data=PrintRandomAccount();
+		int account_number,PIN;
+		do {
+			System.out.print("Enter your account number or 0 to quit: ");
+			account_number=Integer.parseInt(input.nextLine());
+			if(account_number==0)
+			{
+				System.out.println("goodbye");//quit programming
+			}
+			else
+			{
+			int postion=findAccount(data, account_number);
+			if(postion==-1)
+			{
+				System.out.println("not found");
+			}
+			else 
+			{
+				System.out.print("Enter the PIN: ");
+				PIN=Integer.parseInt(input.nextLine());
+				int password = validateAccount(data, PIN,postion);
+				while(password==-1)
+				{
+					System.out.print("wrong password,re-enter the password: ");//determined the right password
+					PIN=Integer.parseInt(input.nextLine());
+					int password2=validateAccount(data, PIN, postion);
+					password=password2;
+				}
+				if(password==0)
+				{
+					processAccount(data,postion);
+				}//end if
+			}//end if
+			}//end if
+		} while (account_number!=0);//end loop
+	}//end main
+}//end class
